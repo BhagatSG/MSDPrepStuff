@@ -1,0 +1,22 @@
+Spark Installation on MAC
+
+Installing Spark
+- - > brew install apache-spark
+
+/usr/local/Cellar/apache-spark/2.3.1
+
+Configuring Spark
+- - >
+Update user bash_profile
+echo '# Adding for Spark Installation' >>~/.bash_profile
+echo 'export SPARK_VERSION=2.3.1' >>~/.bash_profile
+echo 'export SPARK_HOME=/usr/local/Cellar/apache-spark/2.3.1/libexec' >>~/.bash_profile
+echo 'export SPARK_CONF_DIR=$SPARK_HOME/conf' >>~/.bash_profile
+echo 'export SPARK_JARS_DIR=$SPARK_HOME/jars' >>~/.bash_profile
+echo 'export PATH=$SPARK_HOME/bin:$PATH' >>~/.bash_profile
+source .bash_profile
+
+
+Using Hive with Spark
+cp $HIVE_CONF_DIR/hive-site.xml $SPARK_CONF_DIR/
+cp /Library/Java/Extensions/mysql-connector-java-5.1.47.jar $SPARK_JARS_DIR/

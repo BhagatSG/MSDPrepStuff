@@ -1,0 +1,23 @@
+hdfs & spark-shell
+
+curl -cO https://chronicdata.cdc.gov/views/735e-byxc/rows.csv > /Users/bhagat/Downloads/dataMSDUseCase.csv
+
+hdfs dfs -mkdir /data
+
+hdfs dfs -put -f /Users/bhagat/Downloads/dataMSDUseCase.csv /data/
+
+hdfs dfs -chmod -R 777 /data/dataMSDUseCase.csv
+
+
+val dataMSDUseCaseDF = spark.read.option("inferSchema", "true").option("header","true").csv("hdfs://localhost:9000//data/dataMSDUseCase.csv")
+
+dataMSDUseCaseDF.write.mode("Overwrite").format("ORC").insertInto("msdusecase.msd_usecase_data")
+
+val firstQueryOutputDF = dataMSDUseCaseDF.groupBy(dataMSDUseCaseDF("Question"),dataMSDUseCaseDF("YearStart"),dataMSDUseCaseDF("Age(months)")).agg(avg(dataMSDUseCaseDF("Data_Value"))).withColumnRenamed("avg(Data_Value)","avg_data_value").orderBy(dataMSDUseCaseDF("Question"),dataMSDUseCaseDF("YearStart"),dataMSDUseCaseDF("Age(months)"))
+
+firstQueryOutputDF.write.mode("Overwrite").format("ORC").insertInto("msdusecase.first_query_output")
+
+val secondQueryOutputDF = dataMSDUseCaseDF.groupBy(dataMSDUseCaseDF("Question"),dataMSDUseCaseDF("YearStart"),dataMSDUseCaseDF("Gender")).agg(avg(dataMSDUseCaseDF("Data_Value"))).where("Gender == 'Female'").withColumnRenamed("avg(Data_Value)","avg_data_value").orderBy(dataMSDUseCaseDF("Question"),dataMSDUseCaseDF("YearStart"))
+
+secondQueryOutputDF.write.mode("Overwrite").format("ORC").insertInto("msdusecase.second_query_output")
+
